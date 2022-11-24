@@ -1,15 +1,13 @@
 import sys
-sys.path.append('models/')
-sys.path.append('controller/')
-from models.newIO import IOEmployeeFile
-from models.employee import Employee
+from models import IOEmployeeFile, Employee
 from controller import Controller
+import configs as cfgs
 
 def main():
     #init an employee list
     emp = []
     #Declare an IO
-    io = IOEmployeeFile()
+    io = IOEmployeeFile(cfgs.PATH_TO_DATA)
 
     #Always init the list first
     emp = io.read_employees_from_file()
