@@ -33,9 +33,10 @@ class IOEmployeeFile:
 # Debug
 if __name__ == '__main__':
     
-    data = [Employee('A', 'B', 'C')]
+    data = [Employee('A11', 'B2', 'C3')]
     io = IOEmployeeFile()
     # io.write_employees_to_file(data)
     em = io.read_employees_from_file()
     print(em[0])
+    # print(em[1])
 
