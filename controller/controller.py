@@ -1,7 +1,4 @@
-import sys
-sys.path.append('models/')
-from models.newIO import IOEmployeeFile
-from models.employee import Employee
+from models import IOEmployeeFile, Employee
 
 
 class Controller:

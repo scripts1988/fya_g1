@@ -1,8 +1,7 @@
-import employee
+from .employee import Employee
 
 class IOEmployeeFile:
-    # FIX LAI CAI PATH GIUM
-    def __init__(self,path='/Users/148813/Documents/GitHub/fya_g1/models/data.csv') -> None:
+    def __init__(self,path='.data.csv') -> None:
         self._path = path
         self._header = 'name,dob,position'
         assert path[-4:] == '.csv', 'Invalid format file'
@@ -17,7 +16,7 @@ class IOEmployeeFile:
             employees = []
             for line in lines[1:]:
                 name, dob, position = line.split(',')
-                employees.append(employee.Employee(name, dob, position))
+                employees.append(Employee(name, dob, position))
 
             r.close()
             return employees
@@ -35,7 +34,7 @@ class IOEmployeeFile:
 # Debug
 if __name__ == '__main__':
     
-    data = [employee.Employee('A', 'B', 'C')]
+    data = [Employee('A', 'B', 'C')]
     io = IOEmployeeFile()
     # io.write_employees_to_file(data)
     em = io.read_employees_from_file()
