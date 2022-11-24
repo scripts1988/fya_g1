@@ -1,17 +1,31 @@
-from ..models import employee as md
-# from ..models import io as IOEmployee
-# import csv
+from models.employee import Employee
 
 class Controller:
 
-    # def __init__(self, model, view):
-    #     self.model = model
-    #     self.view = view
+    def __init__(self):
+        self.employeeList = []
+
+    def search_e(self, name):
+        for e in self.employeeList:
+            if(e.name == name):
+                return True
+        
+        return False
 
     def insert_e(self, name, dob, position):
-        em = md.Employee
-        em.create_employee(name, dob, position)
+        if (self.search_e(name)):
+            return False
+        else:
+            newEmployee = Employee() 
+            newEmployee.set_information(name, dob, position)
+            self.employeeList.append(newEmployee)
+            return True
 
     def delete_e(self, name):
-        em = md.Employee
-        em.del_employee(name)
+        if(self.search_e(name)):
+            for em in self.employeeList:
+                if(em.name == name):
+                    self.employeeList.remove(em)
+           
+        else:
+            return False

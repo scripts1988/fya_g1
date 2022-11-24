@@ -1,5 +1,3 @@
-from controllers.function import function_employee
-
 class Employee:
     def __init__(self,name=None,dob=None, position=None):
         self._name = name
@@ -40,9 +38,3 @@ class Employee:
     
     def format_csv(self):
         return "%s,%s,%s\n" % (self._name, self._dob, self._position)
-
-    def create_employee(self, name, dob, position):
-        function_employee.add_employee(name, dob, position)
-
-    def del_employee(self, name):
-        function_employee.delete_employee(name)
