@@ -1,34 +1,36 @@
 from tkinter import *
 from tkinter import ttk
 import tkinter as tk
+from tkinter.messagebox import showinfo
 
-import configs as cfgs
+from .configs import *
 
 
 class Form:
-    def __init__(self,action='view', info=None, controller=None):
+    def __init__(self,root, action='view', info=None, controller=None):
         self._info = info
         self._action = action
         self._controller = controller
+        self._root = root
         form = Toplevel()  # create root window
         form.title("Employee")  # title of the GUI window
-        form.maxsize(cfgs.WIDTH_FORM, cfgs.HEIGHT_FORM)  # specify the max size the window can expand to
-        form.minsize(cfgs.WIDTH_FORM, cfgs.HEIGHT_FORM)
+        form.maxsize(WIDTH_FORM, HEIGHT_FORM)  # specify the max size the window can expand to
+        form.minsize(WIDTH_FORM, HEIGHT_FORM)
         form.config(bg="white") 
         
         # form.eval('tk::PlaceWindow . center')
 
-        label_id = tk.Label(form, text=cfgs.HEADER_MAPPING['id'], font=('verdana',14), bg='#3498db')
+        label_id = tk.Label(form, text=HEADER_MAPPING['id'], font=('verdana',14), bg='#3498db')
         self.entry_id = tk.Label(form, font=('verdana',14),text='')
 
-        label_name = tk.Label(form, text=cfgs.HEADER_MAPPING['name'], font=('verdana',14), bg='#3498db')
+        label_name = tk.Label(form, text=HEADER_MAPPING['name'], font=('verdana',14), bg='#3498db')
         self.entry_name = tk.Entry(form, font=('verdana',14))
 
 
-        label_dob = tk.Label(form, text=cfgs.HEADER_MAPPING['dob'], font=('verdana',14), bg='#3498db')
+        label_dob = tk.Label(form, text=HEADER_MAPPING['dob'], font=('verdana',14), bg='#3498db')
         self.entry_dob = tk.Entry(form, font=('verdana',14), )
 
-        label_pos = tk.Label(form, text=cfgs.HEADER_MAPPING['position'], font=('verdana',14), bg='#3498db')
+        label_pos = tk.Label(form, text=HEADER_MAPPING['position'], font=('verdana',14), bg='#3498db')
         self.entry_pos = tk.Entry(form, font=('verdana',14))
 
         label_id.grid(row=0, column=0, sticky='e')
@@ -48,7 +50,7 @@ class Form:
         self.cancel_btn = Button(form, text='CANCEL',font=('verdana',14), bg='white', width=5, command=form.destroy)
         self.cancel_btn.grid(row=5, column=0, padx=10, sticky='ne')
 
-        self.action_btn = Button(form, text=cfgs.ACTION_MAPPING[action],font=('verdana',14), bg='white', width=5, command=self.action)
+        self.action_btn = Button(form, text=ACTION_MAPPING[action],font=('verdana',14), bg='white', width=5, command=self.action)
         self.action_btn.grid(row=5, column=1, padx=10, )
 
         self._entries = [self.entry_id, self.entry_name, self.entry_dob, self.entry_pos]
@@ -73,16 +75,37 @@ class Form:
             return self._form.destroy()
         
         if self._action == 'add':
-            name = self.entry_name.get()
-            dob = self.entry_dob.get()
-            pos = self.entry_name.get()
-            self._controller.add(name, dob, pos)
+            try:
+                name = self.entry_name.get()
+                dob = self.entry_dob.get()
+                pos = self.entry_pos.get()
+                self._controller.add(name, dob, pos)
+                self._controller.saveData()
+                # print('Hwllpo')
+                self._root.refresh()
+
+                showinfo(message="Add employee succesfully")
+            except:
+                showinfo(message= "Add employee failed")
+            self._form.destroy()
+
         
         if self._action == 'edit':
-            name = self.entry_name.get()
-            dob = self.entry_dob.get()
-            pos = self.entry_name.get()
-            self._controller.modify(name, name,dob, pos)
+            try:
+                id = int(self.entry_id['text'])
+                name = self.entry_name.get()
+                dob = self.entry_dob.get()
+                pos = self.entry_pos.get()
+                self._controller.modify(id, name,dob, pos)
+                self._controller.saveData()
+
+                self._root.refresh()
+                showinfo(message="Modify employee succesfully")
+            except:
+
+                showinfo(message="Modify employee failed")
+
+            self._form.destroy()
 
         
 
