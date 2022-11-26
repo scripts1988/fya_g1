@@ -32,3 +32,5 @@ class Controller:
             if (nameToDelete == name):
                 self._employeeList.remove(employee)
 
+    def getEmployeeList(self):
+        return self._employeeList
