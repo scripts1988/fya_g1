@@ -3,8 +3,8 @@ from tkinter import ttk
 import tkinter as tk
 from tkinter.messagebox import showinfo
 # import configs as cfgs
-import configs as cfgs
-from form import Form
+from .configs import *
+from .form import Form
 
 
 class Table:
@@ -29,17 +29,21 @@ class Table:
         scrollbar = ttk.Scrollbar(root, orient=tk.VERTICAL, command=self._table.yview)
         self._table.configure(yscroll=scrollbar.set)
         scrollbar.grid(row=2, column=1, sticky='wsn')
-        contacts = []
-        for n in range(1, 100):
-            contacts.append((f'first {n}', f'last {n}', f'email{n}@example.com'))
 
-        # add data to the treeview
-        for contact in contacts:
-            self._table.insert('', tk.END, values=contact)
-        
+        # contacts = []
+        # for n in range(1, 100):
+        #     contacts.append((f'first {n}', f'last {n}', f'email{n}@example.com'))
 
+        # # add data to the treeview
+        # for contact in contacts:
+        #     self._table.insert('', tk.END, values=contact)
+        employees = []
+        for i, e in enumerate(controller.getEmployeeList()):
+            employees.append((str(i), e.get_name(), e.get_dob(), e.get_position()))
+
+        for e in employees:
+            self._table.insert('', tk.END, values=e)
         self.curr_item = None
-
 
     # def insert(self, )
 
@@ -49,16 +53,37 @@ class Table:
         record = item['values']
         self.curr_item = record
         if self._form is None:
-            self._form = Form(action='view', info=record, controller=self._controller)
+            self._form = Form(root=self,action='view', info=record, controller=self._controller)
     def one_click(self, event):
         selected_item = self._table.selection()[0]
         item = self._table.item(selected_item)
         self.curr_item = item['values']
 
 
+    def set_data(self, data):
+        self.delete()
+        values = []
+        for i, e in enumerate(data):
+            values.append((str(i), e.get_name(), e.get_dob(), e.get_position()))
+
+        for e in values:
+            self._table.insert('', tk.END, values=e)
+
+    def refresh(self):
+        self.delete()
+        employees = []
+        for i, e in enumerate(self._controller.getEmployeeList()):
+            employees.append((str(i), e.get_name(), e.get_dob(), e.get_position()))
+
+        for e in employees:
+            self._table.insert('', tk.END, values=e)
+        self.curr_item = None
+
     def delete(self):
         for i in self._table.get_children():
             self._table.delete(i)
+        self.curr_item = None
+        self._form = None
 
     def get_sellected_item(self):
         return self.curr_item
@@ -68,8 +93,8 @@ class MainScreen:
     def __init__(self, controller=None):
         root = Tk()  # create root window
         root.title("Employee Management")  # title of the GUI window
-        root.maxsize(cfgs.WIDTH, cfgs.HEIGHT)  # specify the max size the window can expand to
-        root.minsize(cfgs.WIDTH, cfgs.HEIGHT)
+        root.maxsize(WIDTH, HEIGHT)  # specify the max size the window can expand to
+        root.minsize(WIDTH, HEIGHT)
         root.eval('tk::PlaceWindow . center')
         root.config(bg="skyblue")  # specify background color
         self._root = root
@@ -79,20 +104,22 @@ class MainScreen:
         self.create_right_frame()
         self.create_left_frame()
 
-        label_total = Label(self._root, text='TOTAL: ', font=('verdana',14), bg='#3498db')
-        label_value = Label(self._root, text='11', font=('verdana',14),bg='skyblue')
-        label_total.grid(row=3, column=0,pady=20,)
-        label_value.grid(row=3, column=0, sticky='e')
+        self.label_total = Label(self._root, text='TOTAL: ', font=('verdana',14), bg='#3498db')
+        self.label_value = Label(self._root, text='', font=('verdana',14),bg='skyblue')
+        self.label_total.grid(row=3, column=0,pady=20,)
+        self.label_value.grid(row=3, column=0, sticky='e')
 
         self._form = None
         
         
-        
+        self.label_value.config(text=str(len(self._controller.getEmployeeList())))
+
         self._root.mainloop()
 
     # Create left and right frames
     def create_right_frame(self):
-        self.right_frame = Frame(self._root, width=cfgs.RIGHT_FRAME_WIDTH,height=cfgs.RIGHT_FRAME_HEIGHT, bg='grey')
+
+        self.right_frame = Frame(self._root, width=RIGHT_FRAME_WIDTH,height=RIGHT_FRAME_HEIGHT, bg='grey')
         self.right_frame.grid(row=2, column=2, sticky='se')
 
         self.add_btn = Button(self.right_frame, text='ADD',font=('verdana',14), bg='white',width=7,command=self.add)
@@ -101,10 +128,11 @@ class MainScreen:
         self.modify_btn = Button(self.right_frame, text='MODIFY',font=('verdana',14), bg='white',width=8,command=self.modify)
         self.modify_btn.grid(row = 3, column=2,padx=10,pady=10)
 
-        self.delele_btn = Button(self.right_frame, text='DELETE',font=('verdana',14), bg='white',width=8)
+
+        self.delele_btn = Button(self.right_frame, text='DELETE',font=('verdana',14), bg='white',width=8,command=self.delete)
         self.delele_btn.grid(row = 4, column=2,padx=10,pady=10 )
 
-        self.refresh_btn = Button(self.right_frame, text='REFRESH',font=('verdana',14), bg='white',width=8)
+        self.refresh_btn = Button(self.right_frame, text='REFRESH',font=('verdana',14), bg='white',width=8,command=self.refresh)
         self.refresh_btn.grid(row = 5, column=2,padx=10,pady=10 )
         
 
@@ -112,22 +140,45 @@ class MainScreen:
         # left_frame = Frame(self._root, width=cfgs.LEFT_FRAME_WIDTH, bg='white')
         # left_frame.grid(row=0, column=0, padx=10, pady=10)
         self.entry_search = tk.Entry(self._root, font=('verdana',14))
-        self.search_btn = Button(self._root, text='SEARCH',font=('verdana',14), bg='white',width=8)
+        self.search_btn = Button(self._root, text='SEARCH',font=('verdana',14), bg='white',width=8,command=self.search)
 
         self.entry_search.grid(row=1, column=0,padx=10, pady=20)
         self.search_btn.grid(row=1, column=0, sticky='e')
-        self.table = Table(self._root,cfgs.HEADER_MAPPING, self._controller)
+
+        self.table = Table(self._root,HEADER_MAPPING, self._controller)
         # table = Table(left_frame, cfgs.HEADER_MAPPING)
         # left_frame.grid(row=0, column=0, padx=10, pady=5)
         # self.left_frame = left_frame
 
     def add(self):
-        self._form = Form(action='add', controller=self._controller)
-
+        self._form = Form(root=self,action='add', controller=self._controller)
+        
     def modify(self):
         info = self.table.get_sellected_item()
         if info is not None:
-            self._form = Form(action='edit',info=info, controller=self._controller)
+            self._form = Form(root=self, action='edit',info=info, controller=self._controller)
+        self.refresh()
+        self._controller.saveData()
+
+    def delete(self):
+        info = self.table.get_sellected_item()
+        self._controller.delete(info[0])
+        self.table.refresh()
+
+        self._controller.saveData()
+
+    def search(self):
+        text = self.entry_search.get()
+        if text != '':
+            result = self._controller.search(text)
+            self.table.set_data(result)
+
+            
+
+    def refresh(self):
+        self.label_value.config(text=str(len(self._controller.getEmployeeList())) )
+        self.entry_search.config(text='')
+        self.table.refresh()
 
 
 if __name__ == '__main__':
